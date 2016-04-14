@@ -15,6 +15,7 @@
 #define DEBUG 0
 #define SERIAL_BAUDRATE 57600
 
+//Value text wich will change
 String ConsoW = "Conso (W)";
 String ConsoWh = "Conso (Wh)";
 
@@ -111,19 +112,20 @@ void setup(void)
   Serial.println(F("//    citizenwatt.paris     //"));
   Serial.println(F("////////////////////////////// \n"));
 
+  //Define "put" mode of each thing
   pinMode(RED_LED_PIN, OUTPUT);
   pinMode(GREEN_LED_PIN, OUTPUT);
   pinMode(BACKLIGHT_PIN, OUTPUT);
-
+  //startup's light
   digitalWrite(RED_LED_PIN, HIGH);
   digitalWrite(GREEN_LED_PIN, HIGH);
   digitalWrite(BACKLIGHT_PIN, HIGH);
 
+  //Start screen
   myGLCD.InitLCD(60);
   myGLCD.clrScr();
   myGLCD.drawBitmap(0, 0, CitizenLogo, 84, 48);
   myGLCD.update();
-  
   myGLCD.setFont(TinyFont);
   myGLCD.print("Initialisation...", CENTER, 40);
   myGLCD.print("Le Mutualab presente", CENTER, 1);
@@ -135,7 +137,7 @@ void setup(void)
   // Prepare sleep parameters
   //
   setup_watchdog(wdt_1s); // /!\ 8s sleeping
-
+  //Calibration of the sensor 
   for (int i=0; i<9;i++){
     digitalWrite(GREEN_LED_PIN, HIGH);
     nrf.power = (int) (emon1.calcIrms(NUMBER_SAMPLES_I) * VOLTAGE);
@@ -143,31 +145,32 @@ void setup(void)
       do_sleep();
 
   }
+  //Same but with a coolest screen :)
   for (int fg=0; fg<15; fg++) {
         digitalWrite(GREEN_LED_PIN, HIGH);
     nrf.power = (int) (emon1.calcIrms(NUMBER_SAMPLES_I) * VOLTAGE);
     digitalWrite(GREEN_LED_PIN, LOW);
    myGLCD.clrScr();
   myGLCD.setFont(SmallFont);
-  myGLCD.print("Lancement", 5, 20);
+  myGLCD.print("Chargement", 3, 20);
   myGLCD.update();
   digitalWrite(GREEN_LED_PIN, HIGH);
     nrf.power = (int) (emon1.calcIrms(NUMBER_SAMPLES_I) * VOLTAGE);
     digitalWrite(GREEN_LED_PIN, LOW);
   myGLCD.clrScr();
-  myGLCD.print("Lancement.", 5, 20);
+  myGLCD.print("Chargement.", 3, 20);
   myGLCD.update();
   digitalWrite(GREEN_LED_PIN, HIGH);
     nrf.power = (int) (emon1.calcIrms(NUMBER_SAMPLES_I) * VOLTAGE);
     digitalWrite(GREEN_LED_PIN, LOW);
   myGLCD.clrScr();
-  myGLCD.print("Lancement..", 5, 20);
+  myGLCD.print("Chargement..", 3, 20);
   myGLCD.update();
   digitalWrite(GREEN_LED_PIN, HIGH);
     nrf.power = (int) (emon1.calcIrms(NUMBER_SAMPLES_I) * VOLTAGE);
     digitalWrite(GREEN_LED_PIN, LOW);
   myGLCD.clrScr();
-  myGLCD.print("Lancement...", 5, 20);
+  myGLCD.print("Chargement...", 3, 20);
   myGLCD.update();
   }
  
@@ -217,6 +220,7 @@ void loop(void)
     valeurs[i] = valeurs[i + 1];
     tot = tot + valeurs[i];
   }
+  //define the clock at start of mesures
     finished=millis();
   float h,m,s,ms;
   unsigned long over;
@@ -227,7 +231,7 @@ void loop(void)
   over=over%60000;
   s=int(over/1000);
   if (m == 30) {
-    digitalWrite(RED_LED_PIN, HIGH);
+    digitalWrite(RED_LED_PIN, HIGH);      // Funny things happen at 30min and 1 hour :)
   };
   if (h >= 1) {
     digitalWrite(BACKLIGHT_PIN, LOW);
@@ -251,7 +255,7 @@ void loop(void)
     myGLCD.drawLine(i , 20, i, 20 - map(valeurs[i], 0, 300, 0, 20));
   }
  
-
+  //Display of the screen
   myGLCD.setFont(TinyFont);
   myGLCD.print(ConsoW, 0, 22);
   myGLCD.print(ConsoWh, 37, 0);
@@ -259,23 +263,21 @@ void loop(void)
   myGLCD.printNumI((int)h, 52, 30);
   myGLCD.printNumI((int)m, 62, 30);
   myGLCD.printNumI((int)s, 72, 30);
-  if (nrf.power >= 1000) {
-    nrf.power = nrf.power /1000;
-    ConsoW = "Conso (kW)";
+  if (nrf.power >= 1000) {            //Transform Value of Instant conso into kiloWatt 
+    nrf.power = nrf.power /1000;      //
+    ConsoW = "Conso (kW)";            //Transform name of the value "W" into "kW"
   };
-  if (Conso_cumu >= 1000) {
-    Conso_cumu = Conso_cumu /1000;
-    ConsoWh = "Conso (kWh)";
+  if (Conso_cumu >= 1000) {           //
+    Conso_cumu = Conso_cumu /1000;    // Same for the total consommation
+    ConsoWh = "Conso (kWh)";          //
   };
     myGLCD.setFont(MediumNumbers);
-  myGLCD.printNumI(nrf.power, LEFT, 28);
+  myGLCD.printNumI(nrf.power /2, LEFT, 28);
   myGLCD.printNumF(Conso_cumu,2, 36,5 );
   myGLCD.setFont(TinyFont);
-  myGLCD.print("mutualab.org", 35, 42);
-  myGLCD.print("/PowerBox/", 35, 37);
+  myGLCD.print("mutualab.org", 37, 39); //Some advert for our association :)
     myGLCD.print(ConsoW, 0, 22);
   myGLCD.print(ConsoWh, 37, 0);
-  myGLCD.drawRect( 33, 36, 84, 48);
   myGLCD.update();
 
   if ( DEBUG )
