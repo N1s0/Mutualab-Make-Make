@@ -275,7 +275,7 @@ void loop(void)
   myGLCD.print("/PowerBox/", 35, 37);
     myGLCD.print(ConsoW, 0, 22);
   myGLCD.print(ConsoWh, 37, 0);
-  myGLCD.drawRect( 33, 35, 84, 48);
+  myGLCD.drawRect( 33, 36, 84, 48);
   myGLCD.update();
 
   if ( DEBUG )
